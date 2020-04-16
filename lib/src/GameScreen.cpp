@@ -1,0 +1,153 @@
+#include "../inc/GameScreen.hpp"
+#include "../inc/Game.hpp"
+#include "../inc/Shape.hpp"
+
+#include "../inc/CubeShapeInfo.hpp"
+#include "../inc/LShapeInfo.hpp"
+#include "../inc/LineShapeInfo.hpp"
+#include "../inc/MirroredLShapeInfo.hpp"
+#include "../inc/SShapeInfo.hpp"
+#include "../inc/TShapeInfo.hpp"
+#include "../inc/ZShapeInfo.hpp"
+
+#include <SFML/System/Clock.hpp>
+#include <SFML/Window/Event.hpp>
+#include <SFML/Window/Keyboard.hpp>
+
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/ConvexShape.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Text.hpp>
+
+GameScreen::GameScreen( Game& g ) : game_( &g ){};
+
+int GameScreen::Run( sf::RenderWindow& App )
+{
+
+    bool Running = true;
+    sf::Font Font;
+    if ( !Font.loadFromFile( "../fonts/Inconsolata.ttf" ) )
+    {
+        std::cerr << "Error loading Inconsolata.ttf" << std::endl;
+        return ( -1 );
+    }
+
+    sf::RectangleShape rec( sf::Vector2f{40.f, 40.f} );
+    rec.setPosition( 40.f, 40.f );
+    rec.setFillColor( sf::Color::Black );
+
+    sf::Clock clock;
+    static bool spawnNewShape = true;
+    if ( spawnNewShape )
+    {
+        game_->shownObjects.push_back( game_->getRandomShape( ) );
+        spawnNewShape = false;
+    }
+    IShape* shape = game_->shownObjects.back( ).get( );
+    static bool pause = false;
+    /* if ( !pause ) */
+    /*     pause = false; */
+
+    std::cout <<"spawnNewShape : " << spawnNewShape << '\n';
+    sf::Vector2i grabbedOffset;
+    bool grabbedWindow = false;
+    while ( Running )
+    {
+        if ( spawnNewShape )
+        {
+            game_->shownObjects.push_back( game_->getRandomShape( ) );
+            shape = game_->shownObjects.back( ).get( );
+            spawnNewShape = false;
+        }
+        sf::Event event;
+        while ( App.pollEvent( event ) )
+        {
+            switch ( event.type )
+            {
+                case sf::Event::KeyPressed:
+                    if ( !pause )
+                    {
+
+                        if ( event.key.code == sf::Keyboard::Left )
+                        {
+                            shape->move( -1, 0 );
+                        }
+                        else if ( event.key.code == sf::Keyboard::Right )
+                        {
+                            shape->move( 1, 0 );
+                        }
+                        else if ( event.key.code == sf::Keyboard::Down )
+                        {
+                            shape->move( 0, 1 );
+                        }
+                        else if ( event.key.code == sf::Keyboard::Up )
+                        {
+                            shape->rotate( );
+                        }
+                    }
+                    if ( event.key.code == sf::Keyboard::Escape )
+                    {
+                        pause = 0;
+                        return 0;
+                    }
+                    else if ( event.key.code == sf::Keyboard::P )
+                    {
+                        pause = true;
+                    }
+                    else if ( event.key.code == sf::Keyboard::C )
+                    {
+                        pause = false;
+                    }
+                    continue;
+
+                case sf::Event::MouseButtonPressed:
+                    if ( event.mouseButton.button == sf::Mouse::Left )
+                    {
+                        grabbedOffset =
+                            App.getPosition( ) - sf::Mouse::getPosition( );
+                    }
+                    break;
+                case sf::Event::Closed:
+                    App.close( );
+                    return -1;
+                    break;
+                default:
+                    break;
+            }
+        }
+        if ( !pause )
+        {
+            if ( clock.getElapsedTime( ).asMilliseconds( ) > 350 )
+            {
+                clock.restart( );
+
+                if ( shape->stopped && !spawnNewShape )
+                {
+                    sf::Clock timer;
+                    std::cout << "inside\n";
+                    game_->addToFilledGrids( shape );
+                    spawnNewShape = true;
+                    game_->checkForFullRow( );
+                    Running = game_->isGameStillRunning( );
+                    game_->approxMemoryConsumption( );
+                    shape = game_->shownObjects.back( ).get( );
+                    continue;
+                }
+                shape->move( 0, 1 );
+            }
+        }
+        App.clear( );
+
+        grabbedWindow = sf::Mouse::isButtonPressed( sf::Mouse::Left );
+
+        if ( grabbedWindow )
+            App.setPosition( sf::Mouse::getPosition( ) + grabbedOffset );
+
+        game_->showWorldMesh( );
+        for ( const auto& s : game_->shownObjects )
+            App.draw( *s );
+        App.display( );
+    }
+
+    return -1;
+}
