@@ -25,7 +25,8 @@ Dependencies
 Build with CMake by defining SFML_DIR to <SFML_BUILD_DIR>\lib\cmake\SFML directory.
 
 
-
+## Special thanks
+To <a href="https://github.com/sariug">Ugurcan Sari</a> for review.
 ### License
 The blocks are <a href="http://www.freepik.com">Designed by starline / Freepik</a>
 
