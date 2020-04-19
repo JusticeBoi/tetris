@@ -16,8 +16,7 @@ void Game::run( )
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
 
-    sf::RenderWindow App( sf::VideoMode( 480u, 880u ), "Tetris",
-                          sf::Style::None );
+    sf::RenderWindow App( sf::VideoMode( 480u, 880u ), "Tetris" );
     App.setFramerateLimit( 80 );
     rWindow_ = &App;
 
