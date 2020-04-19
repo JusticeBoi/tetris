@@ -11,12 +11,32 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <iostream>
 
 class IShape : public sf::Drawable, public sf::Transformable
 {
   public:
-    IShape( const std::vector<sf::RectangleShape>& rs,  std::array<uint8_t, 264>& arr  ) : tetrisShape_( rs ), filledGridMap_(arr) {};
+    IShape( const std::vector<sf::RectangleShape>& rs,
+            std::array<uint8_t, 264>& arr )
+        : tetrisShape_( rs ), filledGridMap_( arr )
+    {
+        shade_ = { sf::RectangleShape( sf::Vector2f( 40.f, 40.f ) ),
+                   sf::RectangleShape( sf::Vector2f( 40.f, 40.f ) ),
+                   sf::RectangleShape( sf::Vector2f( 40.f, 40.f ) ),
+                   sf::RectangleShape( sf::Vector2f( 40.f, 40.f ) ) };
+
+        shade_[0].setFillColor( sf::Color( 75, 75, 75, 75 ) );
+        shade_[1].setFillColor( sf::Color( 75, 75, 75, 75 ) );
+        shade_[2].setFillColor( sf::Color( 75, 75, 75, 75 ) );
+        shade_[3].setFillColor( sf::Color( 75, 75, 75, 75 ) );
+
+        shade_[0].setOutlineThickness( 0.f );
+        shade_[1].setOutlineThickness( 0.f );
+        shade_[2].setOutlineThickness( 0.f );
+        shade_[3].setOutlineThickness( 0.f );
+    };
     uint8_t stopped = 0;
+    uint8_t showShade = 0;
     virtual void move( int8_t right, int8_t bottom ) = 0;
     void draw( sf::RenderTarget& target,
                sf::RenderStates states ) const override
@@ -26,6 +46,13 @@ class IShape : public sf::Drawable, public sf::Transformable
         {
             if ( s.getPosition( ).y > -0.1f )
                 target.draw( s, states );
+        }
+        if ( showShade && !stopped )
+        {
+            for ( auto& s : shade_ )
+            {
+                target.draw( s, states );
+            }
         }
     }
     virtual void rotate( ) = 0;
@@ -76,6 +103,56 @@ class IShape : public sf::Drawable, public sf::Transformable
     {
         return tetrisShape_;
     };
+    void changeTheShadeView( )
+    {
+        /* if ( !stopped ) */
+        /* { */
+            auto rectIndices = getIndicesOfRectangles( );
+            if ( std::any_of( std::begin( rectIndices ),
+                              std::end( rectIndices ),
+                              []( const auto i ) { return i > 263; } ) )
+            {
+                showShade = 0;
+                return;
+            }
+            /* for ( int i = 0; i < 22; ++i ) */
+            /* { */
+            /*     for ( int j = 0; j < 12; ++j ) */
+            /*     { */
+            /*         std::cout << static_cast<unsigned int>( */
+            /*                          filledGridMap_[12 * i + j] ) */
+            /*                   << ' '; */
+            /*     } */
+            /*     std::cout << '\n'; */
+            /* } */
+            /*     std::cout << '\n'; */
+            while ( true )
+            {
+                if ( std::any_of( std::begin( rectIndices ),
+                                  std::end( rectIndices ),
+                                  []( const auto i ) { return i > 251; } ) )
+                    break;
+                if ( std::any_of( std::begin( rectIndices ),
+                                  std::end( rectIndices ), [&]( const auto i ) {
+                                      return filledGridMap_[i + 12];
+                                  } ) )
+                    break;
+                for ( auto& r : rectIndices )
+                    r += 12;
+            }
+
+            showShade = 1;
+            for ( size_t i = 0; i < 4; ++i )
+            {
+                auto& shape = shade_[i];
+                const auto& newIndex = rectIndices[i];
+
+                const float newY = ( newIndex / 12 ) * 40.f;
+                const float newX = ( newIndex % 12 ) * 40.f;
+                shape.setPosition( newX, newY );
+            }
+        /* } */
+    }
 
     IShape( ) = delete;
     IShape( const IShape& s ) = delete;
@@ -87,6 +164,7 @@ class IShape : public sf::Drawable, public sf::Transformable
   protected:
     static std::array<sf::Texture, 7> textures;
     std::vector<sf::RectangleShape> tetrisShape_;
+    std::vector<sf::RectangleShape> shade_;
     std::array<uint8_t, 264>& filledGridMap_;
 };
 inline std::array<sf::Texture, 7> IShape::textures =

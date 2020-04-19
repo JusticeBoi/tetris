@@ -45,9 +45,6 @@ int GameScreen::Run( sf::RenderWindow& App )
     }
     IShape* shape = game_->shownObjects.back( ).get( );
     static bool pause = false;
-    /* if ( !pause ) */
-    /*     pause = false; */
-
     std::cout <<"spawnNewShape : " << spawnNewShape << '\n';
     sf::Vector2i grabbedOffset;
     bool grabbedWindow = false;
@@ -123,6 +120,7 @@ int GameScreen::Run( sf::RenderWindow& App )
 
                 if ( shape->stopped && !spawnNewShape )
                 {
+                    shape->showShade = 0;
                     sf::Clock timer;
                     std::cout << "inside\n";
                     game_->addToFilledGrids( shape );
@@ -130,7 +128,7 @@ int GameScreen::Run( sf::RenderWindow& App )
                     game_->checkForFullRow( );
                     Running = game_->isGameStillRunning( );
                     game_->approxMemoryConsumption( );
-                    shape = game_->shownObjects.back( ).get( );
+                    /* shape = game_->shownObjects.back( ).get( ); */
                     continue;
                 }
                 shape->move( 0, 1 );

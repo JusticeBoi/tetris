@@ -73,6 +73,7 @@ void Shape<ShapeInfo>::move( int8_t right, int8_t bottom )
     {
         rec.move( toRight, toBot );
     }
+    changeTheShadeView( );
 }
 template<typename ShapeInfo> void Shape<ShapeInfo>::rotate( )
 {
@@ -106,5 +107,6 @@ template<typename ShapeInfo> void Shape<ShapeInfo>::rotate( )
     {
         tetrisShape_[i].setPosition( newLocations[i] );
     }
+    changeTheShadeView( );
 }
 #endif
