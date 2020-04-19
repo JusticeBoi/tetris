@@ -72,8 +72,6 @@ int MenuScreen::Run( sf::RenderWindow& App )
                 case sf::Event::MouseButtonPressed: {
                     if ( Event.mouseButton.button == sf::Mouse::Left )
                     {
-                        grabbedOffset =
-                            App.getPosition( ) - sf::Mouse::getPosition( );
                         sf::Vector2f mapped = App.mapPixelToCoords(
                             {Event.mouseButton.x, Event.mouseButton.y} );
                         if ( Exit.getGlobalBounds( ).contains( mapped ) )
@@ -96,6 +94,8 @@ int MenuScreen::Run( sf::RenderWindow& App )
                             std::cout << "retuning 1 \n";
                             return 1;
                         }
+                        grabbedOffset =
+                            App.getPosition( ) - sf::Mouse::getPosition( );
                     }
                     break;
                 }

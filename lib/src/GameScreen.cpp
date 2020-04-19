@@ -22,7 +22,6 @@ GameScreen::GameScreen( Game& g ) : game_( &g ){};
 
 int GameScreen::Run( sf::RenderWindow& App )
 {
-    App.setPosition( sf::Vector2i{ 10, 50 } );
 
     bool Running = true;
     sf::Clock clock;
