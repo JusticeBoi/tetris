@@ -16,26 +16,15 @@
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/ConvexShape.hpp>
-#include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
 
 GameScreen::GameScreen( Game& g ) : game_( &g ){};
 
 int GameScreen::Run( sf::RenderWindow& App )
 {
+    App.setPosition( sf::Vector2i{ 10, 50 } );
 
     bool Running = true;
-    sf::Font Font;
-    if ( !Font.loadFromFile( "../fonts/Inconsolata.ttf" ) )
-    {
-        std::cerr << "Error loading Inconsolata.ttf" << std::endl;
-        return ( -1 );
-    }
-
-    sf::RectangleShape rec( sf::Vector2f{40.f, 40.f} );
-    rec.setPosition( 40.f, 40.f );
-    rec.setFillColor( sf::Color::Black );
-
     sf::Clock clock;
     static bool spawnNewShape = true;
     if ( spawnNewShape )
@@ -45,7 +34,7 @@ int GameScreen::Run( sf::RenderWindow& App )
     }
     IShape* shape = game_->shownObjects.back( ).get( );
     static bool pause = false;
-    std::cout <<"spawnNewShape : " << spawnNewShape << '\n';
+    /* std::cout <<"spawnNewShape : " << spawnNewShape << '\n'; */
     sf::Vector2i grabbedOffset;
     bool grabbedWindow = false;
     while ( Running )
