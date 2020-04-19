@@ -8,7 +8,12 @@ Well, learning SFML and practicing C++ would be the main reason.
 Not really. 
 
 ## How to play
-P for pause, c for continue and esc to open the menu. Left, right and down arrow keys to navitage the shapes, up key to rotate it.
+
+### Keyboard
+P for pause, c for continue and esc to open the menu. Left, right and down arrow keys to navigate the shapes, up key to rotate it.
+
+### Mouse
+Navigate the pieces by moving the mouse, scroll down to place to piece to its final position, right click to rotate the piece.
 
 ## Installing
 
