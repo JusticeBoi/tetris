@@ -67,15 +67,18 @@ int GameScreen::Run( sf::RenderWindow& App )
 
                         if ( event.key.code == sf::Keyboard::Left )
                         {
-                            shape->move( -1, 0 );
+                            shape->move( static_cast<int8_t>( -1 ),
+                                         static_cast<int8_t>( 0 ) );
                         }
                         else if ( event.key.code == sf::Keyboard::Right )
                         {
-                            shape->move( 1, 0 );
+                            shape->move( static_cast<int8_t>( 1 ),
+                                         static_cast<int8_t>( 0 ) );
                         }
                         else if ( event.key.code == sf::Keyboard::Down )
                         {
-                            shape->move( 0, 1 );
+                            shape->move( static_cast<int8_t>( 0 ),
+                                         static_cast<int8_t>( 1 ) );
                         }
                         else if ( event.key.code == sf::Keyboard::Up )
                         {
@@ -103,7 +106,33 @@ int GameScreen::Run( sf::RenderWindow& App )
                         grabbedOffset =
                             App.getPosition( ) - sf::Mouse::getPosition( );
                     }
+                    else if ( !pause &&
+                              event.mouseButton.button == sf::Mouse::Right )
+                    {
+                            shape->rotate( );
+                    }
                     break;
+                case sf::Event::MouseMoved:
+                    {
+                    if ( !pause )
+                    {
+                        const float x = event.mouseMove.x;
+                        const float y = event.mouseMove.y;
+                        shape->move( x, y );
+                    }
+                    break;
+                }
+                case sf::Event::MouseWheelScrolled: {
+                    if ( !pause )
+                    {
+                        if ( event.mouseWheelScroll.delta < 0.f )
+                        {
+                            shape->moveToShadesLocation( );
+                            shape->resetRotationState( );
+                        }
+                        break;
+                    }
+                }
                 case sf::Event::Closed:
                     App.close( );
                     return -1;
@@ -121,7 +150,6 @@ int GameScreen::Run( sf::RenderWindow& App )
                 if ( shape->stopped && !spawnNewShape )
                 {
                     shape->showShade = 0;
-                    sf::Clock timer;
                     std::cout << "inside\n";
                     game_->addToFilledGrids( shape );
                     spawnNewShape = true;
@@ -131,7 +159,8 @@ int GameScreen::Run( sf::RenderWindow& App )
                     /* shape = game_->shownObjects.back( ).get( ); */
                     continue;
                 }
-                shape->move( 0, 1 );
+                shape->move( static_cast<int8_t>( 0 ),
+                             static_cast<int8_t>( 1 ) );
             }
         }
         App.clear( );

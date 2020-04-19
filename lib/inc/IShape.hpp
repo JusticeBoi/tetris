@@ -37,7 +37,21 @@ class IShape : public sf::Drawable, public sf::Transformable
     };
     uint8_t stopped = 0;
     uint8_t showShade = 0;
+    uint8_t oneMoreMove = 0;
     virtual void move( int8_t right, int8_t bottom ) = 0;
+    virtual void move( float x, float y ) = 0;
+    virtual void resetRotationState() = 0;
+    void moveToShadesLocation( )
+    {
+        if ( showShade )
+        {
+            for ( int i = 0; i < 4; ++i )
+            {
+                tetrisShape_[i].setPosition( shade_[i].getPosition( ) );
+            }
+            stopped = 1;
+        }
+    }
     void draw( sf::RenderTarget& target,
                sf::RenderStates states ) const override
     {
