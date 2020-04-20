@@ -8,16 +8,16 @@ set(TETRIS_VERSION_MINOR 2)
 OPTION ( DEFINE_DEBUG "Build the project with using debugging logs" OFF)
 
 
-set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 20)
 
 if(CMAKE_CXX_COMPILER MATCHES ".*clang[+][+]" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     MESSAGE("Compiler CLANG")
-    set (CMAKE_CXX_FLAGS_DEBUG " -O0 -std=c++17 -fopenmp -g -Wall -Wextra -Wshadow -Wno-unused-parameter -Wnon-virtual-dtor ")
-    set (CMAKE_CXX_FLAGS_RELEASE "-march=native -std=c++17 -fopenmp -O3 -Wno-unused-parameter ")
+    set (CMAKE_CXX_FLAGS_DEBUG " -O0 -fopenmp -g -Wall -Wextra -Wshadow -Wno-unused-parameter -Wnon-virtual-dtor ")
+    set (CMAKE_CXX_FLAGS_RELEASE "-march=native -fopenmp -O3 -Wno-unused-parameter ")
 elseif(CMAKE_COMPILER_IS_GNUCXX)
     MESSAGE("Compiler GCC")
-    set (CMAKE_CXX_FLAGS_DEBUG " -O0 -std=c++17 -fopenmp -g -Wall -Wextra -Wshadow -Wno-unused-parameter -Wnon-virtual-dtor  ")
-    set (CMAKE_CXX_FLAGS_RELEASE "-march=native -std=c++17 -fopenmp -O3 -Wno-unused-parameter ")
+    set (CMAKE_CXX_FLAGS_DEBUG " -O0  -fopenmp -g -Wall -Wextra -Wshadow -Wno-unused-parameter -Wnon-virtual-dtor -fconcepts  ")
+    set (CMAKE_CXX_FLAGS_RELEASE "-march=native -fopenmp -O3 -Wno-unused-parameter -fconcepts -Wall -Wextra -Wnon-virtual-dtor")
 endif()
 if(WIN32)
     set(SFML_STATIC_LIBRARIES TRUE)
@@ -74,4 +74,3 @@ else()
     target_link_libraries(${EXECUTABLE_NAME} sfml-graphics sfml-window sfml-audio )
 
 endif()
-

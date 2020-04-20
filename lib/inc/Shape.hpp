@@ -3,6 +3,7 @@
 
 #include "IShape.hpp"
 #include "macros.h"
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <array>
 #include <bitset>
@@ -13,8 +14,19 @@
 #include <memory>
 #include <vector>
 
+template<typename T> concept ShapeInfo = requires( T a, const std::vector<uint16_t>& currentLocation, std::vector<sf::RectangleShape>& toSetColor, const std::array<sf::Texture, 7>& textures,  const std::vector<sf::RectangleShape>& curLoc  )
+{
+    { T::currentRotatedState} ;
+    { T::createShape( ) } ->  std::vector<sf::RectangleShape>;
+    { T::startingLocation( ) } -> std::vector<uint16_t>;
+    { T::rotate( currentLocation ) } -> std::vector<uint16_t>;
+    { T::rotate( curLoc ) } -> std::vector<sf::Vector2f>;
+    { T::setColors( toSetColor, textures ) } -> void;
+    { T::rotationSuccess() } -> void;
 
-template<typename ShapeInfo> class Shape final : public IShape
+};
+
+template<ShapeInfo S> class Shape final : public IShape
 {
   public:
     void move( int8_t right, int8_t bottom ) override;
@@ -30,15 +42,15 @@ template<typename ShapeInfo> class Shape final : public IShape
     Shape& operator=( const Shape& s ) = delete;
 };
 
-template<typename ShapeInfo>
-Shape<ShapeInfo>::Shape( std::array<uint8_t, 264>& arr )
-    : IShape( ShapeInfo::createShape( ), arr )
+template<ShapeInfo S>
+Shape<S>::Shape( std::array<uint8_t, 264>& arr )
+    : IShape( S::createShape( ), arr )
 {
-    ShapeInfo::setColors( tetrisShape_, textures );
+    S::setColors( tetrisShape_, textures );
 };
 
-template<typename ShapeInfo>
-void Shape<ShapeInfo>::move( int8_t right, int8_t bottom )
+template<ShapeInfo S>
+void Shape<S>::move( int8_t right, int8_t bottom )
 {
     using constants::oneOverForty;
     const auto positions = getPositionsOfRectangles( );
@@ -61,7 +73,7 @@ void Shape<ShapeInfo>::move( int8_t right, int8_t bottom )
             if ( std::abs( newY - pos.y ) > 1.f )
             {
                 stopped = 1;
-                ShapeInfo::currentRotatedState = 0;
+                S::currentRotatedState = 0;
             }
             clock.restart( );
             return;
@@ -78,15 +90,13 @@ void Shape<ShapeInfo>::move( int8_t right, int8_t bottom )
     changeTheShadeView( );
 }
 
-template<typename ShapeInfo>
-void Shape<ShapeInfo>::move( float x, float y )
+template<ShapeInfo S>
+void Shape<S>::move( float x, float y )
 {
     using constants::oneOverForty;
     const auto positions = getPositionsOfRectangles( );
     float toRight = static_cast<float>(
         ( static_cast<int>( x - positions[0].x ) / 40 ) * 40 );
-    /* const float toBot = static_cast<float>( */
-    /*     ( static_cast<int>( y - positions[y].x ) / 40 ) * 40 ); */
     for ( const auto& pos : positions )
     {
 
@@ -106,9 +116,8 @@ void Shape<ShapeInfo>::move( float x, float y )
             {
                 stopped = 1;
                 oneMoreMove = 1;
-                ShapeInfo::currentRotatedState = 0;
+                S::currentRotatedState = 0;
             }
-            /* clock.restart( ); */
             return;
         }
         else if ( stopped  )
@@ -116,37 +125,23 @@ void Shape<ShapeInfo>::move( float x, float y )
             return;
         }
     }
-    /* if ( oneMoreMove == 1 ) */
-    /* { */
-    /*     std::cout <<"stopped and one more move ! \n"; */
-    /*     toRight = (toRight > 0.f ) ? 40.f : -40.f; */
-    /*     for ( auto& rec : tetrisShape_ ) */
-    /*     { */
-    /*         rec.move( toRight, 0.f ); */
-    /*     } */
-    /*     oneMoreMove = 2; */
-    /* } */
-    /* else if ( oneMoreMove == 2) return; */
-    /* else */
-    /* { */
         for ( auto& rec : tetrisShape_ )
         {
             rec.move( toRight, 0.f );
         }
-    /* } */
     changeTheShadeView( );
 }
-template<typename ShapeInfo> void Shape<ShapeInfo>::resetRotationState( )
+template<ShapeInfo S> void Shape<S>::resetRotationState( )
 {
-    ShapeInfo::currentRotatedState = 0;
+    S::currentRotatedState = 0;
 }
-template<typename ShapeInfo> void Shape<ShapeInfo>::rotate( )
+template<ShapeInfo S> void Shape<S>::rotate( )
 {
     using constants::oneOverForty;
     if ( stopped )
         return;
     const std::vector<sf::Vector2f> newLocations =
-        ShapeInfo::rotate( tetrisShape_ );
+        S::rotate( tetrisShape_ );
 
     if ( std::any_of( std::cbegin( newLocations ), std::cend( newLocations ),
                       []( const auto& v ) {
@@ -167,7 +162,7 @@ template<typename ShapeInfo> void Shape<ShapeInfo>::rotate( )
              [&]( uint16_t i ) { return i > 263 || filledGridMap_[i]; } ) )
         return;
 
-    ShapeInfo::rotationSuccess( );
+    S::rotationSuccess( );
     for ( int i = 0; i < 4; ++i )
     {
         tetrisShape_[i].setPosition( newLocations[i] );
